@@ -176,20 +176,6 @@ def print_matrix(matrix, seq1_words, seq2_words):
             print(f"{matrix[i][j]:3} ", end="") 
         print()
 
-import pandas as pd
-
-def create_matrix_dataframe(matrix, seq1_words, seq2_words):
-    # Add empty column for row headers
-    seq2_words.insert(0, "") 
-
-    # Create DataFrame 
-    df = pd.DataFrame(matrix, columns=seq2_words, index=seq1_words)
-
-    # Remove the extra row header (empty string)
-    df.index.name = None
-
-    return df
-
 demo = Demo()
 load_model()
 import time
@@ -237,7 +223,7 @@ while demo.message_num < len(from_B):
             output_ipa += item + '\t'
         print(output_ipa)
         list_theoretical = demo.data['speaker2'].split()
-        print("--------- Theoretical -----------------")
+        print("--------- Theoretical -------------------------")
         output = ""
         output_ipa = ""
         for item in list_theoretical:
@@ -256,12 +242,14 @@ while demo.message_num < len(from_B):
         # print(compara_ipa)
         matrix = calculate_path(ipa_list, theoretical_ipa_list)
         edit_operations = backtrack_path(matrix, ipa_list, theoretical_ipa_list)
-
+        print("--------- Edit operations: -------------------------")
         for operation in edit_operations:
-            print(f" * {operation[0]}: {operation[1]} with {operation[2]}") 
-        # print_matrix(matrix, ipa_list, theoretical_ipa_list)
-        df = create_matrix_dataframe(matrix, ipa_list, theoretical_ipa_list)
-        print(df)
+            print(f" * {operation[0]}: {operation[1]} with {operation[2]}") if operation[0] != "Deletion" else print(f" * {operation[0]}: {operation[1]}")
+
+        print("--------- Levenshtein: -----------------------------")
+   
+        print_matrix(matrix, ipa_list, theoretical_ipa_list)
+
         try:
             input("Press Enter to continue...")
         except KeyboardInterrupt:
