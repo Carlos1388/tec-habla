@@ -1,54 +1,53 @@
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
+import torch
+import torchaudio
 import speech_recognition as sr
-from gtts import gTTS
-import pyphen
 
 
-# Crear un objeto de reconocimiento de voz
-r = sr.Recognizer()
+# load model and processor
+def load_model(tamaño="tiny"):
+    global processor
+    global model 
+    processor = WhisperProcessor.from_pretrained("openai/whisper-%s" % tamaño)
+    model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-%s" % tamaño)
+    model.config.forced_decoder_ids = None
+    return None
 
-# Configurar el micrófono
-mic = sr.Microphone()
+# record audio
+def save_audio(path):
+    if path is None:
+        path = "audio.wav"
+    r = sr.Recognizer()
+    mic = sr.Microphone()
+    with mic as source:
+        print("Di algo:")
+        audio = r.listen(source)
+    with open(path, "wb") as f:
+        f.write(audio.get_wav_data())
+    return None
 
-# Iniciar la grabación
-with mic as source:
-    print("Di algo:")
-    audio = r.listen(source)
+def transcribe_audio(audio_path):
+    # load audio file
+    audio = torchaudio.load(audio_path)
+    # Prepara el audio para el modelo
+    input_features = processor(audio, return_tensors="pt")
 
-# Reconocer el texto del audio
-try:
-    text = r.recognize_google(audio)
-except sr.RequestError:
-    print("No se pudo conectar al servicio de Google Speech Recognition")
-except sr.UnknownValueError:
-    print("No se pudo entender el audio")
+    # Realiza la predicción
+    outputs = model(**input_features)
 
-# Mostrar el texto reconocido
-print(text)
+    # Obtiene la transcripción
+    predicted_tokens = outputs.predicted_tokens
+    transcript = processor.decode(predicted_tokens)
 
-# Seleccionar el idioma
-language = 'es'
+    # Imprime la transcripción
+    print(transcript)
+    return None
 
-# Convertir el texto a fonemas
-tts = gTTS(text, lang=language)
+def main():
+    load_model()
+    save_audio()
+    transcribe_audio("audio.wav")
+    return None
 
-# Guardar el archivo de audio con los fonemas
-tts.save("fonemas.wav")
-
-
-def fonemas_a_afi(fonemas):
-    # Create a Pyphen object with the desired language
-    dic = pyphen.Pyphen(lang='es_ES')
-
-    # Convert phonemes to AFI symbols
-    simbolos_afi = []
-    for fonema in fonemas:
-        simbolos_afi.append(dic.inserted(fonema))
-
-    # Save AFI symbols to a text file
-    with open("fonemas_afi.txt", "w") as f:
-        f.write(" ".join(simbolos_afi))
-
-    # Return list of IPA symbols
-    print(simbolos_afi)
-
-fonemas_a_afi(tts.text.split())
+if __name__ == "__main__":
+    main()
