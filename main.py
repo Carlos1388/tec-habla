@@ -9,10 +9,8 @@ import librosa
 from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 import phonemizer 
-
+import Levenshtein
 EspeakWrapper.set_library("C:\Program Files\eSpeak NG\libespeak-ng.dll")
-
-from nicegui import ui, Client, Tailwind
 
 # load model and processor
 def load_model(tamaño="tiny"):
@@ -120,6 +118,78 @@ class Demo:
             'phonemes': ' '
         }
     
+import Levenshtein
+
+def word_distance(word1, word2):
+    return Levenshtein.distance(word1, word2)
+
+def calculate_path(seq1_words, seq2_words):
+    matrix = [[0] * (len(seq2_words) + 1) for _ in range(len(seq1_words) + 1)]
+
+    for i in range(1, len(seq1_words) + 1):
+        matrix[i][0] = i
+    for j in range(1, len(seq2_words) + 1):
+        matrix[0][j] = j
+
+    for i in range(1, len(seq1_words) + 1):
+        for j in range(1, len(seq2_words) + 1):
+            if seq1_words[i - 1] == seq2_words[j - 1]:
+                cost = 0
+            else:
+                cost = word_distance(seq1_words[i - 1], seq2_words[j - 1])
+
+            matrix[i][j] = min(matrix[i - 1][j] + 1,        # Deletion
+                               matrix[i][j - 1] + 1,        # Insertion
+                               matrix[i - 1][j - 1] + cost)  # Substitution/Match
+
+    return matrix
+
+def backtrack_path(matrix, seq1_words, seq2_words):
+    i = len(seq1_words)
+    j = len(seq2_words)
+    operations = []
+
+    while i > 0 or j > 0:
+        if i > 0 and j > 0 and matrix[i][j] == matrix[i - 1][j - 1] + word_distance(seq1_words[i - 1], seq2_words[j - 1]):
+            if seq1_words[i - 1] != seq2_words[j - 1]:
+                operations.append(("Substitution", seq1_words[i - 1], seq2_words[j - 1]))
+            i -= 1
+            j -= 1
+        elif i > 0 and matrix[i][j] == matrix[i - 1][j] + 1:
+            operations.append(("Deletion", seq1_words[i - 1], ""))
+            i -= 1
+        else:
+            operations.append(("Insertion", "", seq2_words[j - 1]))
+            j -= 1
+
+    return operations[::-1]
+
+def print_matrix(matrix, seq1_words, seq2_words):
+    print("      ", end="")
+    for word in seq2_words:
+        print(f"  {word:5}", end="")  # Column headers (seq2)
+    print()
+
+    for i, word in enumerate(seq1_words):
+        print(f"{word:5} ", end="")  # Row headers (seq1)
+        for j in range(len(seq2_words) + 1):
+            print(f"{matrix[i][j]:3} ", end="") 
+        print()
+
+import pandas as pd
+
+def create_matrix_dataframe(matrix, seq1_words, seq2_words):
+    # Add empty column for row headers
+    seq2_words.insert(0, "") 
+
+    # Create DataFrame 
+    df = pd.DataFrame(matrix, columns=seq2_words, index=seq1_words)
+
+    # Remove the extra row header (empty string)
+    df.index.name = None
+
+    return df
+
 demo = Demo()
 load_model()
 import time
@@ -177,13 +247,21 @@ while demo.message_num < len(from_B):
             output_ipa += item + '\t'
         print(output_ipa)
         compara_ipa = ""
-        for i in range(len(theoretical_ipa_list)):
-            if ipa_list[i] == theoretical_ipa_list[i]:
-                compara_ipa += ipa_list[i] + '\t'
-            else:
-                position = i
-                compara_ipa += "X" + '\t'
-        print(compara_ipa)
+        # for i in range(len(theoretical_ipa_list)):
+        #     if ipa_list[i] == theoretical_ipa_list[i]:
+        #         compara_ipa += ipa_list[i] + '\t'
+        #     else:
+        #         position = i
+        #         compara_ipa += "X" + '\t'
+        # print(compara_ipa)
+        matrix = calculate_path(ipa_list, theoretical_ipa_list)
+        edit_operations = backtrack_path(matrix, ipa_list, theoretical_ipa_list)
+
+        for operation in edit_operations:
+            print(f" * {operation[0]}: {operation[1]} with {operation[2]}") 
+        # print_matrix(matrix, ipa_list, theoretical_ipa_list)
+        df = create_matrix_dataframe(matrix, ipa_list, theoretical_ipa_list)
+        print(df)
         try:
             input("Press Enter to continue...")
         except KeyboardInterrupt:
