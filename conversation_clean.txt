@@ -1,0 +1,24 @@
+ Hello Sarah. Thank you for coming. I'm excited to talk about the machine learning job.
+  Hello, me too. Your company does cool things with AI.
+  That's true! Could you tell me about your experience with big AI projects?
+ Yes. In my last job, I made a program to suggest things people might like. We used lots of data and deep learning. 
+  Cool! I see you know about transformers. How did you use them?
+  Transformers were important for language understanding. We made a pre-trained model better for our project.
+  Interesting!  Sometimes our AI has problems being fair.  Did you ever work on making AI more fair?
+ Yes. I worked on face recognition. We found problems for some groups, so we  changed the data and the training.
+ Good! Can you tell me about a difficult problem you solved?
+ Sure! Our recommender was slow. We made the training better and the model smaller. 
+ Nice!  It seems you have good skills. Do you have any questions for me? 
+
+ Good morning, Sarah. Thanks for taking the time to meet with me today. I'm excited to discuss your interest in our Senior Machine Learning Engineer position.
+ Good morning! Thank you for having me. I'm quite impressed with your company's recent innovations in natural language processing.
+ That's great! Can you start by telling me a bit about your experience, particularly regarding large-scale AI models?
+ Absolutely. In my last role, I led a team that developed a recommendation engine optimizing content personalization. We worked with massive datasets, using deep learning techniques to improve model accuracy and efficiency. 
+  Impressive. I see you also have experience with transformer-based architectures. How have you applied those in your work?
+  Transformers were crucial in the NLP project I mentioned. We fine-tuned a pre-trained language model to understand user queries better, significantly enhancing our search results.
+ Interesting. At our company, we face challenges with bias in some of our AI systems. Could you describe a past project where you addressed issues of fairness?
+ Yes, definitely. I collaborated on a project where we analyzed a facial recognition system and identified demographic biases. We then used techniques like data augmentation and adversarial training to mitigate those biases.
+ Excellent. It sounds like you have the skills we're looking for. Could you share a situation where you had to overcome a technical challenge in an AI project?
+ Absolutely. During the recommendation engine development, we encountered scalability issues. We optimized training pipelines through distributed computing and experimented with model quantization to improve inference time. 
+ Great adaptability! Well, Sarah, I'm very impressed with your background. Before we wrap up, do you have any questions for me about the position or the company? 
+
