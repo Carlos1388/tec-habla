@@ -1,0 +1,8 @@
+########   Requisitos   ##############
+
+Se ha utilizado Python 3.11.7 con un entorno virtual,
+los paquetes instalados en él están listados en requirements.txt
+
+También es necesario instalar eSpeak para poder utilizar el backend en Phonemizer
+
+Para la interfaz gráfica se utiliza https://www.pysimplegui.com 

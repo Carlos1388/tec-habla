@@ -10,7 +10,8 @@ from phonemizer.backend.espeak.wrapper import EspeakWrapper
 
 import phonemizer 
 import Levenshtein
-EspeakWrapper.set_library("C:\Program Files\eSpeak NG\libespeak-ng.dll")
+
+EspeakWrapper.set_library("C:\Program Files\eSpeak NG\libespeak-ng.dll") # path to the espeak-ng library
 
 MODEL_SIZE = "tiny"
 CONVERSATION = "conversation.txt"
@@ -92,22 +93,8 @@ def process_conversation(conversation):
     g.close()
     return from_A, from_B
 
-def wavelet_inspired_compare(seq1, seq2, window_size=3):
-    score = 0
-    for i in range(len(seq1) - window_size + 1):
-        subseq1 = seq1[i:i + window_size]
-        subseq2 = seq2[i:i + window_size]
 
-        if subseq1 == subseq2:
-            score += 5  # High bonus for matching subsequence
-        else:
-            for p1, p2 in zip(subseq1, subseq2):
-                score += 1 if p1 == p2 else -1  # Simple mismatch penalty 
-
-    return score
-
-path = "conversation.txt"
-from_A, from_B = process_conversation(path)
+from_A, from_B = process_conversation(CONVERSATION)
 # take out (and delete after) first message from A and print it
 class Demo:
     def __init__(self):
@@ -186,9 +173,10 @@ load_model()
 import time
 
 def update_demo_data(demo,message_num):
-    if demo.message_num == 0:
+    if demo.message_num < 1:
         demo.data['speaker1_pre'] = ' '
         demo.data['speaker2_pre'] = ' '
+        demo.message_num = 0
     else:
         demo.data['speaker1_pre'] = from_A[demo.message_num-1]
         demo.data['speaker2_pre'] = from_B[demo.message_num-1]
